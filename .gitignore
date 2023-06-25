@@ -1,0 +1,12 @@
+# Ignore workspace configurations
+/.vscode
+
+# Ignore macOS files
+/._.DS_Store
+/.DS_Store
+
+# Ignore generated executables
+/bin/win/main.exe
+/bin/mac/main
+/bin/mac/main.dSYM
+bin/.DS_Store
