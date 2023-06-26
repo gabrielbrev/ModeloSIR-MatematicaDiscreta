@@ -1,5 +1,6 @@
 #include <iostream>
 #include "headers/SIR.h"
+#include "headers/graph.h"
 #include "headers/menu.h"
 #ifdef _WIN32
   #include "src/win/SDL2/SDL.h"
@@ -22,16 +23,17 @@ int main(int argc, char *argv[])
     
     SDL_Renderer * renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_PRESENTVSYNC);
 
-    int scene = 0;
+    int scene = 1;
 
     while(running)
     {   
         switch(scene){
             case 0:
-            menu(&scene);
+            menu(&scene, renderer);
             break;
 
             case 1:
+            graph(&scene, renderer);
             break;
         }
     }

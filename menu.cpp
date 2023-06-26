@@ -7,9 +7,11 @@
   #include <SDL_ttf.h>
 #endif
 
+extern int WIDTH, HEIGHT;
+
 extern bool running;
 
-int menu(int *scene){
+int menu(int *scene, SDL_Renderer *renderer){
   SDL_Event event;
   while(*scene == 0){
     if(SDL_PollEvent(&event)){
