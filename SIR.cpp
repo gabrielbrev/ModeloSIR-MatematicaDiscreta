@@ -1,7 +1,7 @@
 #include <math.h>
 #include <stdio.h>
 #include <iostream>
-
+//TRAVALHO FINAL
 struct SIR{
     float susceptible;
     float infected;
@@ -16,10 +16,7 @@ void nInfected(SIR *info , float peopleSusceptible, SIR result);
 void nSusceptible(SIR *info, float peopleInfected, SIR result);
 void nRecovered(SIR *info, float peopleInfected, SIR result);
 
-
-
-
-
+//main substituivel para passar a struct por parametros ( main meramente ilustrativa )
 int main(){
     SIR question;
     int option;
@@ -38,7 +35,7 @@ int main(){
     printf("%d" , (int)question.susceptible);
 }
 
-
+// funcao para fazer o grafico e retornar o resultado das funcoes selecionadas
 SIR preGraphic(SIR *result, int option){
     
     
@@ -59,17 +56,17 @@ SIR preGraphic(SIR *result, int option){
     return *result;
 }
 
-
+//funcao dos infectados
 void nInfected(SIR *info , float peopleSusceptible, SIR result){
     info->infected = info->infected + (result.contaminationRate*((peopleSusceptible)*(info->infected))) - result.recoveryRate*(info->infected);
 }
 
-
+//funcao dos suscetiveis
 void nSusceptible(SIR *info, float peopleInfected, SIR result){
     info->susceptible = info->susceptible - result.contaminationRate*((info->susceptible)*(peopleInfected));
 }
 
-
+//funcao dos recuperados
 void nRecovered(SIR *info, float peopleInfected, SIR result){
     info->recovered = info->recovered + result.recoveryRate*(peopleInfected);
 }
