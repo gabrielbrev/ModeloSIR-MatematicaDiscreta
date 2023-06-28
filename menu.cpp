@@ -134,7 +134,7 @@ int menu(int *scene, SDL_Renderer *renderer, TTF_Font *font, SIR *caralho){
         // std::stringstream sinfected;
         // std::stringstream sdays;
 
-        
+        //SWITCH MENU SCAN DAS VARIAVEIS DA STRUCT SIR
         if(!done){
           
           switch (info)
@@ -169,6 +169,8 @@ int menu(int *scene, SDL_Renderer *renderer, TTF_Font *font, SIR *caralho){
           }
         }
         //TENTATIVAS DE RESTRINGIR AS CASAS DECIMAIS DOS FLOATS CONVERTIDOS PARA STRING
+        
+        
         // std::ostringstream oss;
         // oss << std::fixed << std::setprecision(2) << (*caralho).susceptible;
         // std::string stringsusceptible = oss.str();
@@ -229,7 +231,7 @@ int menu(int *scene, SDL_Renderer *renderer, TTF_Font *font, SIR *caralho){
         textureText = SDL_CreateTextureFromSurface(renderer, surfaceText);
         SDL_RenderCopy(renderer, textureText, NULL, &inputRect[4]);
 
-
+        SDL_DestroyTexture(textureText);
         info++;
         if(info == 5)
           *scene = 1;
