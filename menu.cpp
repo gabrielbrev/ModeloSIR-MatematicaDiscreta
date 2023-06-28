@@ -163,7 +163,7 @@ int menu(int *scene, SDL_Renderer *renderer, TTF_Font *font, SIR *caralho){
             printf("Quantos dias se passaram?\n");
             scanf("%d", &(*caralho).days);
             //sdays << (*caralho).days;
-
+            //a
           default:
             break;
           }
