@@ -1,6 +1,4 @@
 
-
-
 struct SIR{
     float susceptible;
     float infected;
