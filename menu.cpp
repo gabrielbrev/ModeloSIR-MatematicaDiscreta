@@ -99,6 +99,7 @@ int menu(int *scene, SDL_Renderer *renderer, TTF_Font *font, SIR *caralho){
             }
         }
 
+        //TEXTOS DOS QUADRADOS DA ESQUERDA
         SDL_SetRenderDrawColor(renderer, 255 , 255, 255, 255);
         SDL_RenderDrawRect(renderer, &Title);
         SDL_Surface* surfaceText = TTF_RenderText_Solid(font, " Numero de suscetiveis: ", {255,255,255});
@@ -133,6 +134,7 @@ int menu(int *scene, SDL_Renderer *renderer, TTF_Font *font, SIR *caralho){
         // std::stringstream sinfected;
         // std::stringstream sdays;
 
+        
         if(!done){
           
           switch (info)
@@ -158,7 +160,7 @@ int menu(int *scene, SDL_Renderer *renderer, TTF_Font *font, SIR *caralho){
             //sinfected << (*caralho).infected;
             break;
           case 4:
-            printf("Quantos dias se passaram?");
+            printf("Quantos dias se passaram?\n");
             scanf("%d", &(*caralho).days);
             //sdays << (*caralho).days;
 
