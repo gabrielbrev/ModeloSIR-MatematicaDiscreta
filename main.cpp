@@ -16,6 +16,7 @@ bool running = true;
 
 int main(int argc, char *argv[])
 {   
+    SIR caralho;
     SDL_Init(SDL_INIT_EVERYTHING);
     TTF_Init();
 
@@ -23,7 +24,7 @@ int main(int argc, char *argv[])
     
     SDL_Renderer * renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_PRESENTVSYNC);
     
-    TTF_Font* font = TTF_OpenFont("./fonts/prototype.ttf", 20);
+    TTF_Font* font = TTF_OpenFont("./fonts/prototype.ttf", 50);
 
     int scene = 0;
 
@@ -31,7 +32,7 @@ int main(int argc, char *argv[])
     {   
         switch(scene){
             case 0:
-            menu(&scene, renderer, font);
+            menu(&scene, renderer, font, &caralho);
             break;
 
             case 1:
