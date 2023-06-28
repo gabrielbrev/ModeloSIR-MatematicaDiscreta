@@ -15,8 +15,7 @@ extern bool running;
 
 
 
-
-
+//a
 int menu(int *scene, SDL_Renderer *renderer, TTF_Font *font){
 
 

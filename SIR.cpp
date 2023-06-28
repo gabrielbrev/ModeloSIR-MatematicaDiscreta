@@ -26,7 +26,7 @@ void nRecovered(SIR *info, float peopleInfected, SIR result){
     info->recovered = info->recovered + result.recoveryRate*(peopleInfected);
 }
 
-
+//a
 //funcao numerica do grafico.
 SIR preGraphic(SIR *result){
     if(result->days == 0)
