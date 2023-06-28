@@ -10,7 +10,7 @@ struct SIR{
     int days;
 };
 
-SIR preGraphic(SIR *result, int option);
+SIR preGraphic(SIR *result);
 void nInfected(SIR *info , float peopleSusceptible, SIR result);
 void nSusceptible(SIR *info, float peopleInfected, SIR result);
 void nRecovered(SIR *info, float peopleInfected, SIR result);

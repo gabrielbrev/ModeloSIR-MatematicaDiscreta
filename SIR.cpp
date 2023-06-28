@@ -6,7 +6,7 @@
 
 
 
-SIR preGraphic(SIR *result, int option){
+SIR preGraphic(SIR *result){
     
     
     if(result->days == 0)
