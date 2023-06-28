@@ -24,7 +24,7 @@ int main(int argc, char *argv[])
     
     SDL_Renderer * renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_PRESENTVSYNC);
     
-    TTF_Font* font = TTF_OpenFont("./fonts/prototype.ttf", 20);
+    TTF_Font* font = TTF_OpenFont("./fonts/prototype.ttf", 50);
 
     int scene = 0;
 
