@@ -1,5 +1,6 @@
 #include <math.h>
 #include <stdio.h>
+#include "headers/SIR.h"
 #ifdef _WIN32
 	#include "src/win/SDL2/SDL.h"
 	#include "src/win/SDL2/SDL_ttf.h"
@@ -12,7 +13,39 @@ extern int WIDTH, HEIGHT;
 
 extern bool running;
 
-float zoom = 1;
+struct int_xy{
+	int x;
+	int y;
+};
+typedef int_xy ixy;
+
+struct float_xy{
+	float x;
+	float y;
+};
+typedef float_xy fxy;
+
+fxy zoom = {38, 0.56};
+
+float SIR_function(float x, int option){
+	SIR y;
+	y.susceptible = 1199;
+	y.infected = 10;
+	y.contaminationRate = 0.001;
+	y.recoveryRate = 0.6;
+	y.days = x;
+	SIR result = preGraphic(&y);
+	switch(option){
+		case 0:
+		return - result.infected;
+
+		case 1:
+		return - result.recovered;
+
+		case 2:
+		return - result.susceptible;
+	}
+}
 
 float function(float x, int option){
 	float y = pow(x, 2) / 10;
@@ -37,69 +70,79 @@ bool point_in_frame(SDL_Point point, int frame){
 	}
 }
 
-void draw_dotted_function(SDL_Renderer *renderer, SDL_Point origin, int frame, float (*function)(float, int), int arg2){
+void draw_dotted_function(SDL_Renderer *renderer, TTF_Font *font, SDL_Point origin, int iterations, int frame, float (*function)(float, int), int arg2){
+	SDL_Surface * surface = SDL_LoadBMP("./textures/dot.bmp");
+	SDL_Texture * dot = SDL_CreateTextureFromSurface(renderer, surface);
+
+	SDL_FreeSurface(surface);
+
+	switch(arg2){
+		case 0:
+		SDL_SetTextureColorMod(dot, 255, 50, 50);
+		break;
+
+		case 1:
+		SDL_SetTextureColorMod(dot, 50, 255, 50);
+		break;
+
+		case 2:
+		SDL_SetTextureColorMod(dot, 50, 50, 255);
+	}
+
 	SDL_Point point;
 	float y;
-	for(float x = frame - origin.x; x < WIDTH - frame; x += zoom){
-		y = function(x, arg2);
-		point = {int(origin.x + x * zoom), int(origin.y + y * zoom)};
+	for(float x = 0; x < iterations; x += 1){
+		y = SIR_function(x, arg2);
+		point = {int(origin.x + (x * zoom.x)), int(origin.y + (y * zoom.y))};
 		if(point_in_frame(point, frame)){
-			int size = 3;
+			int size = 13;
 			SDL_Rect rect = {point.x - size/2, point.y - size/2, size, size};
-			SDL_RenderDrawRect(renderer, &rect);
-			SDL_RenderFillRect(renderer, &rect);
+			SDL_RenderCopy(renderer, dot, NULL, &rect);
 		}
 	}
 }
-
-float mod(float x){
-	if(x < 0){
-		return -x;
-	}
-	else{
-		return x;
-	}
-}
-
-int get_decimal_places(float x){
-	int decimal_places = 0;
-	if(x > 1){
-		while(x > 1){
-			x = x * 0.1;
-			decimal_places++;
-		}
-	}
-	else{
-		while(x < 1){
-			x = x * 10;
-			decimal_places--;
-		}
-	}
-	return decimal_places;
-}
-
-
 
 void draw_base(SDL_Renderer *renderer, SDL_Point origin, int frame){
-	int zoom_dp = get_decimal_places(zoom);
-	if(zoom_dp > 2){
-		zoom_dp = 2;
-	}
-	int marker = pow(10, mod(zoom_dp - 2));
-
+	ixy marker = {1, 100};
+	int markerSize = 21;
+	int thickness = 3;
 	if(origin.x > frame && origin.x < WIDTH - frame){
-		SDL_RenderDrawLine(renderer, origin.x, frame, origin.x, HEIGHT - frame);
-		for(int y = frame; y < HEIGHT - frame; y++){
-			if((y - origin.y) % int(marker * zoom) == 0){
-				SDL_RenderDrawLine(renderer, origin.x - 10, y, origin.x + 10, y);
+		SDL_Rect base = {origin.x - thickness/2, frame, thickness, HEIGHT - (2 * frame)};
+		SDL_RenderFillRect(renderer, &base);
+		for(int y = 1; origin.y + (y * zoom.y) > frame; y--){
+			if(y % marker.y == 0){
+				SDL_Rect marker = {origin.x - markerSize/2, origin.y + int(y * zoom.y) - thickness/2, markerSize, thickness};
+				SDL_RenderFillRect(renderer, &marker);
+				SDL_Rect info = marker;
+				info.w = 30;
+				info.x -= info.w + 5;
+				info.h = 30;
+				info.y = origin.y + int(y * zoom.y) - info.h/2;
+				if(info.y + info.h < origin.y)
+					SDL_RenderDrawRect(renderer, &info);
 			}
 		}
 	}
 	if(origin.y > frame && origin.y < HEIGHT - frame){
-		SDL_RenderDrawLine(renderer, frame, origin.y, WIDTH - frame, origin.y);
-		for(int x = frame; x < WIDTH - frame; x++){
-			if((x - origin.x) % int(marker * zoom) == 0){
-				SDL_RenderDrawLine(renderer, x, origin.y - 10, x, origin.y + 10);
+		SDL_Rect base = {frame, origin.y - thickness/2, WIDTH - (2 * frame), thickness};
+		SDL_RenderFillRect(renderer, &base);
+		for(int x = 1; origin.x + (x * zoom.x) < WIDTH - frame; x++){
+			if(x % marker.x == 0){
+				SDL_Rect marker = {origin.x + int(x * zoom.x) - thickness/2, origin.y - markerSize/2, thickness, markerSize};
+				SDL_RenderFillRect(renderer, &marker);
+				SDL_Rect info = marker;
+				info.y += info.h + 5;
+				info.w = 30;
+				info.h = 30;
+				info.x = origin.x + int(x * zoom.x) - info.w/2;
+				if(info.x > origin.x)
+					SDL_RenderDrawRect(renderer, &info);
+					std::string text = std::to_string(x);
+					const chartextPtr = text.c_str();
+
+					SDL_Color color = {255, 255, 255, 255};
+					SDL_Surfacesurface = TTF_RenderText_Solid(font, textPtr, color);
+					SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
 			}
 		}
 	}
@@ -107,13 +150,11 @@ void draw_base(SDL_Renderer *renderer, SDL_Point origin, int frame){
 
 int graph(int *scene, SDL_Renderer *renderer){
 
-	SDL_Point origin = {WIDTH/2, HEIGHT/2};
+	SDL_Point origin = {100, HEIGHT - 100};
 
 	SDL_Event event;
 
 	bool reposition = true;
-
-	SDL_StartTextInput();
 
 	while(*scene == 1){
 		if(SDL_PollEvent(&event)){
@@ -136,21 +177,6 @@ int graph(int *scene, SDL_Renderer *renderer){
 					origin.x -= 5;
 				}
 			}
-			if(event.type == SDL_MOUSEWHEEL){
-				reposition = true;
-				if(event.wheel.y > 0){
-					zoom = zoom * 1.2;
-				}
-				if(event.wheel.y < 0){
-					zoom = 10 * (zoom / 12);
-				}
-
-				printf("zoom: %.2f\n", zoom);
-				printf("thing: %d\n", get_decimal_places(zoom));
-			}
-			if(event.type == SDL_TEXTINPUT){
-				printf("%s\n", event.text.text);
-			}
 		}
 
 		if(reposition){
@@ -159,11 +185,17 @@ int graph(int *scene, SDL_Renderer *renderer){
 			SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 			SDL_RenderClear(renderer);
 
-			SDL_SetRenderDrawColor(renderer, 150, 150, 150, 255);
+			SDL_SetRenderDrawColor(renderer, 200, 200, 200, 255);
 			draw_base(renderer, origin, 75);
 
 			SDL_SetRenderDrawColor(renderer, 0, 0, 255, 100);
-			draw_dotted_function(renderer, origin, 75, function, 1);
+			draw_dotted_function(renderer, origin, 25, 75, NULL, 0);
+
+			SDL_SetRenderDrawColor(renderer, 0, 255, 0, 100);
+			draw_dotted_function(renderer, origin, 25, 75, NULL, 1);
+
+			SDL_SetRenderDrawColor(renderer, 255, 0, 0, 100);
+			draw_dotted_function(renderer, origin, 25, 75, NULL, 2);
 		}
 		
 		SDL_RenderPresent(renderer);
