@@ -1,8 +1,6 @@
 #include <math.h>
 #include <stdio.h>
 #include <iostream>
-
-
 struct SIR{
     float susceptible;
     float infected;
@@ -31,8 +29,6 @@ void nRecovered(SIR *info, float peopleInfected, SIR result){
 
 //funcao numerica do grafico.
 SIR preGraphic(SIR *result){
-    
-    
     if(result->days == 0)
     {
         //printf("Dia %d | %d Pessoas suscetiveis | %d Pessoas infectadas | %d Pessoas recuperadas\n", result->days, (int)result->susceptible, (int)result->infected, (int)result->recovered);
@@ -49,6 +45,7 @@ SIR preGraphic(SIR *result){
     }
     return *result;
 }
+
 
 
 
