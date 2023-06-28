@@ -1,42 +1,9 @@
 #include <math.h>
 #include <stdio.h>
 #include <iostream>
-
-struct SIR{
-    float susceptible;
-    float infected;
-    float recovered;
-    float contaminationRate;
-    float recoveryRate;
-    int days;
-};
-
-SIR preGraphic(SIR *result, int option);
-void nInfected(SIR *info , float peopleSusceptible, SIR result);
-void nSusceptible(SIR *info, float peopleInfected, SIR result);
-void nRecovered(SIR *info, float peopleInfected, SIR result);
+#include "./headers/SIR.h"
 
 
-
-
-
-int main(){
-    SIR question;
-    int option;
-    printf("Quantas sao as pessoas suscetiveis?\n");
-    scanf("%f", &question.susceptible);
-    printf("Quantas sao as pessoas infectadas?\n");
-    scanf("%f", &question.infected);
-    printf("Qual eh a taxa de contaminacao da doenca?\n");
-    scanf("%f", &question.contaminationRate);
-    printf("Qual eh recoveryRate taxa (b) de recuperacao da doenca?\n");
-    scanf("%f", &question.recoveryRate);
-    printf("Qual o dia voce quer?\n");
-    scanf("%d", &question.days);
-    question.recovered = 0;
-    preGraphic(&question, option);
-    printf("%d" , (int)question.susceptible);
-}
 
 
 SIR preGraphic(SIR *result, int option){
@@ -76,6 +43,23 @@ void nRecovered(SIR *info, float peopleInfected, SIR result){
 
 
 
+int main(){
+    SIR question;
+    int option;
+    printf("Quantas sao as pessoas suscetiveis?\n");
+    scanf("%f", &question.susceptible);
+    printf("Quantas sao as pessoas infectadas?\n");
+    scanf("%f", &question.infected);
+    printf("Qual eh a taxa de contaminacao da doenca?\n");
+    scanf("%f", &question.contaminationRate);
+    printf("Qual eh recoveryRate taxa (b) de recuperacao da doenca?\n");
+    scanf("%f", &question.recoveryRate);
+    printf("Qual o dia voce quer?\n");
+    scanf("%d", &question.days);
+    question.recovered = 0;
+    preGraphic(&question, option);
+    printf("%d" , (int)question.susceptible);
+}
 
 
 
