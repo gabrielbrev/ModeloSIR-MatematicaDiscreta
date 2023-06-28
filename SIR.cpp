@@ -11,6 +11,22 @@ struct SIR{
 };
 
 
+//funcao de calculo de infectados
+void nInfected(SIR *info , float peopleSusceptible, SIR result){
+    info->infected = info->infected + (result.contaminationRate*((peopleSusceptible)*(info->infected))) - result.recoveryRate*(info->infected);
+}
+
+//funcao de calculo dos suscetiveis
+void nSusceptible(SIR *info, float peopleInfected, SIR result){
+    info->susceptible = info->susceptible - result.contaminationRate*((info->susceptible)*(peopleInfected));
+}
+
+//funcao de calculo dos recuperados
+void nRecovered(SIR *info, float peopleInfected, SIR result){
+    info->recovered = info->recovered + result.recoveryRate*(peopleInfected);
+}
+
+//a
 //funcao numerica do grafico.
 SIR preGraphic(SIR *result){
     if(result->days == 0)
@@ -31,31 +47,6 @@ SIR preGraphic(SIR *result){
 }
 
 
-//funcao de calculo de infectados
-
-//funcao dos infectados
-
-void nInfected(SIR *info , float peopleSusceptible, SIR result){
-    info->infected = info->infected + (result.contaminationRate*((peopleSusceptible)*(info->infected))) - result.recoveryRate*(info->infected);
-}
-
-
-//funcao de calculo dos suscetiveis
-
-//funcao dos suscetiveis
-
-void nSusceptible(SIR *info, float peopleInfected, SIR result){
-    info->susceptible = info->susceptible - result.contaminationRate*((info->susceptible)*(peopleInfected));
-}
-
-
-//funcao de calculo dos recuperados
-
-//funcao dos recuperados
-
-void nRecovered(SIR *info, float peopleInfected, SIR result){
-    info->recovered = info->recovered + result.recoveryRate*(peopleInfected);
-}
 
 
 
