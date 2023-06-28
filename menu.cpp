@@ -16,7 +16,7 @@ extern bool running;
 
 
 //a
-int menu(int *scene, SDL_Renderer *renderer, TTF_Font *font){
+int menu(int *scene, SDL_Renderer *renderer, TTF_Font *font, SIR *caralho){
 
 
     //hitbox mouse
@@ -82,6 +82,7 @@ int menu(int *scene, SDL_Renderer *renderer, TTF_Font *font){
     inputRect[4].y = inputRect[3].y + Title.w/10 + Title.h/20 + inputRect[0].h;
 
 
+        int info = 0;
     SDL_Event event;
     while(*scene == 0){
         if(SDL_PollEvent(&event)){
@@ -116,6 +117,7 @@ int menu(int *scene, SDL_Renderer *renderer, TTF_Font *font){
         surfaceText = TTF_RenderText_Solid(font, "TRABALHO FINAL", {255,0,0});
         textureText = SDL_CreateTextureFromSurface(renderer, surfaceText);
         SDL_RenderCopy(renderer, textureText, NULL, &Title);
+
         
 
         for(int i = 0 ; i < 5 ; i++){
@@ -123,7 +125,84 @@ int menu(int *scene, SDL_Renderer *renderer, TTF_Font *font){
             SDL_RenderDrawRect(renderer, &nameRect[i]);
         }
         SDL_RenderPresent(renderer);
+        // std::stringstream ssusceptible;
+        // std::stringstream scontaminationRate;
+        // std::stringstream srecoveryRate;
+        // std::stringstream sinfected;
+        // std::stringstream sdays;
+
+        
+        switch (info)
+        {
+        case 0:
+          printf("Quantos suscetiveis temos?\n");
+          scanf("%f", &(*caralho).susceptible);
+          //ssusceptible << (*caralho).susceptible;
+          break;
+        case 1:
+          printf("Qual a taxa de contaminacao?\n");
+          scanf("%f", &(*caralho).contaminationRate);
+          //scontaminationRate << (*caralho).contaminationRate;
+          break;
+        case 2:
+          printf("qual a taxa de recuperacao?\n");
+          scanf("%f", &(*caralho).recoveryRate);
+          //srecoveryRate << (*caralho).recoveryRate;
+          break;
+        case 3:
+          printf("Quantos infectados no inicio?\n");
+          scanf("%f", &(*caralho).infected);
+          //sinfected << (*caralho).infected;
+          break;
+        case 4:
+          printf("Quantos dias se passaram?");
+          scanf("%d", &(*caralho).days);
+          //sdays << (*caralho).days;
+
+        default:
+          break;
+        }
+        std::string stringsusceptible = std::to_string(caralho->susceptible);
+        const char *textPtr = stringsusceptible.c_str();
+
+        surfaceText = TTF_RenderText_Solid(font, textPtr, {255,255,255});
+        textureText = SDL_CreateTextureFromSurface(renderer, surfaceText);
+        SDL_RenderCopy(renderer, textureText, NULL, &inputRect[0]);
+
+        std::string stringContaminationRate = std::to_string(caralho->contaminationRate);
+        textPtr = stringContaminationRate.c_str();
+
+        surfaceText = TTF_RenderText_Solid(font, textPtr, {255,255,255});
+        textureText = SDL_CreateTextureFromSurface(renderer, surfaceText);
+        SDL_RenderCopy(renderer, textureText, NULL, &inputRect[1]);
+
+        std::string stringRecoveryRate = std::to_string(caralho->recoveryRate);
+        textPtr = stringRecoveryRate.c_str();
+
+        surfaceText = TTF_RenderText_Solid(font, textPtr, {255,255,255});
+        textureText = SDL_CreateTextureFromSurface(renderer, surfaceText);
+        SDL_RenderCopy(renderer, textureText, NULL, &inputRect[2]);
+
+        std::string stringInfected = std::to_string(caralho->infected);
+        textPtr = stringInfected.c_str();
+
+        surfaceText = TTF_RenderText_Solid(font, textPtr, {255,255,255});
+        textureText = SDL_CreateTextureFromSurface(renderer, surfaceText);
+        SDL_RenderCopy(renderer, textureText, NULL, &inputRect[3]);
+
+        std::string stringDays = std::to_string(caralho->days);
+        textPtr = stringDays.c_str();
+
+        surfaceText = TTF_RenderText_Solid(font, textPtr, {255,255,255});
+        textureText = SDL_CreateTextureFromSurface(renderer, surfaceText);
+        SDL_RenderCopy(renderer, textureText, NULL, &inputRect[4]);
+
+
+        info++;
+        if(info == 5)
+          *scene = 1;
     }
+
 
     return EXIT_SUCCESS;
     }

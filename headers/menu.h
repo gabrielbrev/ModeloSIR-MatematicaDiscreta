@@ -8,5 +8,5 @@
 #endif
 
 //a
-int menu(int *scene, SDL_Renderer *renderer, TTF_Font *font);
+int menu(int *scene, SDL_Renderer *renderer, TTF_Font *font, SIR *caralho);
 
