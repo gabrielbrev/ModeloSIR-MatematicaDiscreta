@@ -7,6 +7,5 @@
   #include <SDL_ttf.h>
 #endif
 
-//a
-int menu(int *scene, SDL_Renderer *renderer, TTF_Font *font, SIR *caralho);
+int menu(int *scene, SDL_Renderer *renderer, TTF_Font *font, SIR *epidemic);
 

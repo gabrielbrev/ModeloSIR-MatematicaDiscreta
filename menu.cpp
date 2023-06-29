@@ -1,7 +1,8 @@
 #include <stdio.h>
 #include <string>
-#include <sstream>
-#include <iomanip>
+#include <algorithm>
+#include <cctype>
+#include <iostream>
 #include "headers/SIR.h"
 #ifdef _WIN32
   #include "src/win/SDL2/SDL.h"
@@ -15,16 +16,75 @@ extern int WIDTH, HEIGHT;
 
 extern bool running;
 
+struct textures{
+    SDL_Texture *susceptible;
+    SDL_Texture *contaminationRate;
+    SDL_Texture *recoveryRate;
+    SDL_Texture *infected;
+    SDL_Texture *days;
+    SDL_Texture *title;
+};
 
+bool is_number(const std::string& str) {
+    return !str.empty() && std::all_of(str.begin(), str.end(), [](unsigned char c) {
+        return std::isdigit(c) || c == '.';
+    });
+}
 
-//a
-int menu(int *scene, SDL_Renderer *renderer, TTF_Font *font, SIR *caralho){
+void render_number_to_text(SDL_Renderer *renderer, float number, SDL_Rect rect, TTF_Font *font){
+    std::string text = std::to_string(number);
+    const char *textPtr = text.c_str();
 
+    SDL_Color color = {255, 255, 255, 255};
+    SDL_Surface *surface = TTF_RenderText_Solid(font, textPtr, color);
+    SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
+
+    SDL_Rect txtr_rect = rect;
+    float proportion;
+    if(surface->w > surface->h){
+        proportion = (float)surface->h/(float)surface->w;
+        txtr_rect.h = (float)txtr_rect.w * proportion;
+        txtr_rect.y = rect.y + rect.h/2 - txtr_rect.h/2;
+    }
+    else{
+        proportion = (float)surface->w/(float)surface->h;
+        txtr_rect.w = (float)txtr_rect.h * proportion;
+        txtr_rect.x = rect.x + rect.w/2 - txtr_rect.w/2;
+    }
+    SDL_FreeSurface(surface);
+    SDL_RenderCopy(renderer, texture, NULL, &txtr_rect);
+    SDL_DestroyTexture(texture);
+}
+
+void load_textures(SDL_Renderer *renderer, textures *txtr, TTF_Font *font){
+    SDL_Surface *surface = TTF_RenderText_Solid(font, " Numero de suscetiveis: ", {255,255,255});
+    txtr->susceptible = SDL_CreateTextureFromSurface(renderer, surface);
+
+    surface = TTF_RenderText_Solid(font, "Taxa de contaminacao:", {255,255,255});
+    txtr->contaminationRate = SDL_CreateTextureFromSurface(renderer, surface);
+
+    surface = TTF_RenderText_Solid(font, "Taxa de recuparacao:", {255,255,255});
+    txtr->recoveryRate = SDL_CreateTextureFromSurface(renderer, surface);
+
+    surface = TTF_RenderText_Solid(font, "Numero de infectados:", {255,255,255});
+    txtr->infected = SDL_CreateTextureFromSurface(renderer, surface);
+
+    surface = TTF_RenderText_Solid(font, "Numero de dias:", {255,255,255});
+    txtr->days = SDL_CreateTextureFromSurface(renderer, surface);
+
+    surface = TTF_RenderText_Solid(font, "TRABALHO FINAL", {255,0,0});
+    txtr->title = SDL_CreateTextureFromSurface(renderer, surface);
+}
+
+int menu(int *scene, SDL_Renderer *renderer, TTF_Font *font, SIR *status){
+    SDL_Surface *surface;
 
     //hitbox mouse
     SDL_Rect mouse;
     mouse.w = 1;
     mouse.h = 1;
+
+    SDL_Rect intersection;
 
     //retangulo do titulo
     SDL_Rect Title;
@@ -57,9 +117,6 @@ int menu(int *scene, SDL_Renderer *renderer, TTF_Font *font, SIR *caralho){
     nameRect[4] = nameRect[0];
     nameRect[4].y = nameRect[3].y + Title.w/10 + Title.h/20 + nameRect[0].h;
 
-
-
-
     SDL_Rect inputRect[5];
     //input Rect 0
     inputRect[0].w = 300;
@@ -83,158 +140,133 @@ int menu(int *scene, SDL_Renderer *renderer, TTF_Font *font, SIR *caralho){
     inputRect[4] = inputRect[3];
     inputRect[4].y = inputRect[3].y + Title.w/10 + Title.h/20 + inputRect[0].h;
 
-    bool done = false;
-    int info = 0;
+    textures txtr;
+    load_textures(renderer, &txtr, font);
+
+    struct input{
+        int flag = 0;
+        int index;
+        std::string text;
+    };
+    input input;
+    SDL_StopTextInput();
+
     SDL_Event event;
     while(*scene == 0){
+        bool leftdown = false;
         if(SDL_PollEvent(&event)){
             if(event.type == SDL_QUIT){
             running = false;
             break;
             }
             if(event.type == SDL_MOUSEMOTION){
-            SDL_GetMouseState(&mouse.x, &mouse.y);
-            mouse.x -= mouse.w/2;
-            mouse.y -= mouse.h/2;
+                SDL_GetMouseState(&mouse.x, &mouse.y);
+            }
+            if(event.type == SDL_TEXTINPUT){
+                if(is_number(event.text.text)){
+                    input.text += event.text.text;
+                    switch(input.index){
+                        case 0:
+                        (*status).susceptible = std::stof(input.text);
+                        break;
+
+                        case 1:
+                        (*status).contaminationRate = std::stof(input.text);
+                        break;
+
+                        case 2:
+                        (*status).recoveryRate = std::stof(input.text);
+                        break;
+
+                        case 3:
+                        (*status).infected = std::stof(input.text);
+                        break;
+
+                        case 4:
+                        (*status).days = std::stof(input.text);
+                        break;
+                    }
+                }
+            }
+            if(event.type == SDL_KEYDOWN){
+                if(event.key.keysym.sym == SDLK_RETURN){
+                    SDL_StopTextInput();
+                    input.flag = 0;
+                }
+                if(event.key.keysym.sym == SDLK_BACKSPACE){
+                    if(input.flag == 1 && input.text.length() > 0){
+                        input.text.pop_back();
+                        switch(input.index){
+                            case 0:
+                            (*status).susceptible = std::stof(input.text);
+                            break;
+
+                            case 1:
+                            (*status).contaminationRate = std::stof(input.text);
+                            break;
+
+                            case 2:
+                            (*status).recoveryRate = std::stof(input.text);
+                            break;
+
+                            case 3:
+                            (*status).infected = std::stof(input.text);
+                            break;
+
+                            case 4:
+                            (*status).days = std::stof(input.text);
+                            break;
+                        }
+                    }
+                }
+            }
+            if(event.type == SDL_MOUSEBUTTONDOWN){
+                if(event.button.button == SDL_BUTTON_LEFT){
+                    leftdown = true;
+                }
             }
         }
 
-        //TEXTOS DOS QUADRADOS DA ESQUERDA
-        SDL_SetRenderDrawColor(renderer, 255 , 255, 255, 255);
-        SDL_RenderDrawRect(renderer, &Title);
-        SDL_Surface* surfaceText = TTF_RenderText_Solid(font, " Numero de suscetiveis: ", {255,255,255});
-        SDL_Texture* textureText = SDL_CreateTextureFromSurface(renderer, surfaceText);
-        SDL_RenderCopy(renderer, textureText, NULL, &nameRect[0]);
-        surfaceText = TTF_RenderText_Solid(font, " Taxa de contaminacao: ", {255,255,255});
-        textureText = SDL_CreateTextureFromSurface(renderer, surfaceText);
-        SDL_RenderCopy(renderer, textureText, NULL, &nameRect[1]);
-        surfaceText = TTF_RenderText_Solid(font, " Taxa de recuparacao: ", {255,255,255});
-        textureText = SDL_CreateTextureFromSurface(renderer, surfaceText);
-        SDL_RenderCopy(renderer, textureText, NULL, &nameRect[2]);
-        surfaceText = TTF_RenderText_Solid(font, " Numero de infectados: ", {255,255,255});
-        textureText = SDL_CreateTextureFromSurface(renderer, surfaceText);
-        SDL_RenderCopy(renderer, textureText, NULL, &nameRect[3]);
-        surfaceText = TTF_RenderText_Solid(font, " Numero de dias: ", {255,255,255});
-        textureText = SDL_CreateTextureFromSurface(renderer, surfaceText);
-        SDL_RenderCopy(renderer, textureText, NULL, &nameRect[4]);
-        surfaceText = TTF_RenderText_Solid(font, "TRABALHO FINAL", {255,0,0});
-        textureText = SDL_CreateTextureFromSurface(renderer, surfaceText);
-        SDL_RenderCopy(renderer, textureText, NULL, &Title);
+        if(leftdown){
+            for(int i = 0; i < 5; i++){
+                if(SDL_IntersectRect(&mouse, &inputRect[i], &intersection) && input.flag == 0){
+                    input.flag = 1;
+                    input.index = i;
+                    input.text = "0";
+                    SDL_StartTextInput();
+                }
+            }
+        }
 
-        
+        SDL_SetRenderDrawColor(renderer, 0 , 0, 0, 255);
+        SDL_RenderClear(renderer);
+
+        SDL_SetRenderDrawColor(renderer, 255 , 255, 255, 255);
+
+        //TEXTOS DOS QUADRADOS DA ESQUERDA
+        SDL_RenderCopy(renderer, txtr.susceptible, NULL, &nameRect[0]);
+        SDL_RenderCopy(renderer, txtr.contaminationRate, NULL, &nameRect[1]);
+        SDL_RenderCopy(renderer, txtr.recoveryRate, NULL, &nameRect[2]);
+        SDL_RenderCopy(renderer, txtr.infected, NULL, &nameRect[3]);
+        SDL_RenderCopy(renderer, txtr.days, NULL, &nameRect[4]);
+        SDL_RenderCopy(renderer, txtr.title, NULL, &Title);
+
+        //TEXTOS DOS QUADRADOS DA DIREITA
+        render_number_to_text(renderer, status->susceptible, inputRect[0], font);
+        render_number_to_text(renderer, status->contaminationRate, inputRect[1], font);
+        render_number_to_text(renderer, status->recoveryRate, inputRect[2], font);
+        render_number_to_text(renderer, status->infected, inputRect[3], font);
+        render_number_to_text(renderer, status->days, inputRect[4], font);
 
         for(int i = 0 ; i < 5 ; i++){
             SDL_RenderDrawRect(renderer, &inputRect[i]);
-            SDL_RenderDrawRect(renderer, &nameRect[i]);
         }
+
+        
+        
+
         SDL_RenderPresent(renderer);
-        // std::stringstream ssusceptible;
-        // std::stringstream scontaminationRate;
-        // std::stringstream srecoveryRate;
-        // std::stringstream sinfected;
-        // std::stringstream sdays;
 
-        //SWITCH MENU SCAN DAS VARIAVEIS DA STRUCT SIR
-        if(!done){
-          
-          switch (info)
-          {
-          case 0:
-            printf("Quantos suscetiveis temos?\n");
-            scanf("%f", &(*caralho).susceptible);
-            //ssusceptible << (*caralho).susceptible;
-            break;
-          case 1:
-            printf("Qual a taxa de contaminacao?\n");
-            scanf("%f", &(*caralho).contaminationRate);
-            //scontaminationRate << (*caralho).contaminationRate;
-            break;
-          case 2:
-            printf("qual a taxa de recuperacao?\n");
-            scanf("%f", &(*caralho).recoveryRate);
-            //srecoveryRate << (*caralho).recoveryRate;
-            break;
-          case 3:
-            printf("Quantos infectados no inicio?\n");
-            scanf("%f", &(*caralho).infected);
-            //sinfected << (*caralho).infected;
-            break;
-          case 4:
-            printf("Quantos dias se passaram?\n");
-            scanf("%d", &(*caralho).days);
-            //sdays << (*caralho).days;
-            //a
-          default:
-            break;
-          }
-        }
-        //TENTATIVAS DE RESTRINGIR AS CASAS DECIMAIS DOS FLOATS CONVERTIDOS PARA STRING
-        
-        
-        // std::ostringstream oss;
-        // oss << std::fixed << std::setprecision(2) << (*caralho).susceptible;
-        // std::string stringsusceptible = oss.str();
-        // const char* textPtr = stringsusceptible.c_str();
-
-
-        std::string stringsusceptible = std::to_string(caralho->susceptible);
-        const char *textPtr = stringsusceptible.c_str();
-
-        surfaceText = TTF_RenderText_Solid(font, textPtr, {255,255,255});
-        textureText = SDL_CreateTextureFromSurface(renderer, surfaceText);
-        SDL_RenderCopy(renderer, textureText, NULL, &inputRect[0]);
-
-         std::string stringContaminationRate = std::to_string(caralho->contaminationRate);
-         textPtr = stringContaminationRate.c_str();
-        // std::ostringstream oss2;
-        // oss2 << std::fixed << std::setprecision(3) << (*caralho).contaminationRate;
-        // std::string stringContaminationRate = oss2.str();
-        // textPtr = stringContaminationRate.c_str();
-
-        surfaceText = TTF_RenderText_Solid(font, textPtr, {255,255,255});
-        textureText = SDL_CreateTextureFromSurface(renderer, surfaceText);
-        SDL_RenderCopy(renderer, textureText, NULL, &inputRect[1]);
-
-        std::string stringRecoveryRate = std::to_string(caralho->recoveryRate);
-        textPtr = stringRecoveryRate.c_str();
-
-        // std::ostringstream oss3;
-        // oss3 << std::fixed << std::setprecision(2) << (*caralho).recoveryRate;
-        // std::string stringRecoveryRate = oss3.str();
-        // textPtr = stringRecoveryRate.c_str();
-
-        surfaceText = TTF_RenderText_Solid(font, textPtr, {255,255,255});
-        textureText = SDL_CreateTextureFromSurface(renderer, surfaceText);
-        SDL_RenderCopy(renderer, textureText, NULL, &inputRect[2]);
-
-        std::string stringInfected = std::to_string(caralho->infected);
-        textPtr = stringInfected.c_str();
-
-        // std::ostringstream oss4;
-        // oss4 << std::fixed << std::setprecision(0) << (*caralho).infected;
-        // std::string stringInfected= oss4.str();
-        // textPtr = stringInfected.c_str();
-
-        surfaceText = TTF_RenderText_Solid(font, textPtr, {255,255,255});
-        textureText = SDL_CreateTextureFromSurface(renderer, surfaceText);
-        SDL_RenderCopy(renderer, textureText, NULL, &inputRect[3]);
-
-        std::string stringDays = std::to_string((float)caralho->days);
-        textPtr = stringDays.c_str();
-
-        // std::ostringstream oss5;
-        // oss5 << std::fixed << std::setprecision(0) << (float)(caralho->days);
-        // std::string stringDays= oss5.str();
-        // textPtr = stringDays.c_str();
-
-        surfaceText = TTF_RenderText_Solid(font, textPtr, {255,255,255});
-        textureText = SDL_CreateTextureFromSurface(renderer, surfaceText);
-        SDL_RenderCopy(renderer, textureText, NULL, &inputRect[4]);
-
-        SDL_DestroyTexture(textureText);
-        info++;
-        if(info == 5)
-          *scene = 1;
     }
 
 

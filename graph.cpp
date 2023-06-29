@@ -29,13 +29,13 @@ typedef float_xy fxy;
 fxy zoom = {38, 0.56};
 
 float SIR_function(float x, int option){
-	SIR y;
-	y.susceptible = 1199;
-	y.infected = 1;
-	y.contaminationRate = 0.001;
-	y.recoveryRate = 0.6;
-	y.days = x;
-	SIR result = preGraphic(&y);
+	SIR status;
+	status.susceptible = 1199;
+	status.infected = 1;
+	status.contaminationRate = 0.001;
+	status.recoveryRate = 0.6;
+	status.days = x;
+	SIR result = simulate_epidemic(&status);
 	switch(option){
 		case 0:
 		return - result.infected;
@@ -315,6 +315,7 @@ int graph(int *scene, SDL_Renderer *renderer, TTF_Font *font){
 				if(event.key.keysym.sym == SDLK_LEFT){
 					origin.x -= 5;
 				}
+			
 			}
 			if(event.type == SDL_MOUSEMOTION){
 				SDL_GetMouseState(&mouse.x, &mouse.y);

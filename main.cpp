@@ -16,7 +16,7 @@ bool running = true;
 
 int main(int argc, char *argv[])
 {   
-    SIR caralho;
+    SIR status = {0, 0, 0, 0};
     SDL_Init(SDL_INIT_EVERYTHING);
     TTF_Init();
 
@@ -32,11 +32,11 @@ int main(int argc, char *argv[])
     {   
         switch(scene){
             case 0:
-            menu(&scene, renderer, font, &caralho);
+            menu(&scene, renderer, font, &status);
             break;
 
             case 1:
-            graph(&scene, renderer);
+            graph(&scene, renderer, font);
             break;
         }
     }
