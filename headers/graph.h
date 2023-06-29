@@ -8,4 +8,4 @@
   #include <SDL_ttf.h>
 #endif
 
-int graph(int *scene, SDL_Renderer *renderer, TTF_Font *font);
+int graph(int *scene, SDL_Renderer *renderer, TTF_Font *font, SIR *status);

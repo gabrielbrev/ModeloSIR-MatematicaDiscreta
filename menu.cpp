@@ -24,22 +24,17 @@ bool is_number(const std::string& str) {
     });
 }
 
-void render_number_to_text(SDL_Renderer *renderer, float number, SDL_Rect rect, TTF_Font *font){
+void render_number_to_text(SDL_Renderer *renderer, float number, std::string reference, SDL_Rect rect, TTF_Font *font){
     std::string text = std::to_string(number);
-    bool onlyZeores = true;
-    for (std::size_t i = 0; i < text.length() - 1; ++i) {
-        if(text[i] != '0' && text[i] != '.'){
-            std::cout << text[i] << std::endl;
-            onlyZeores = false;  
-        }
-    }
-    if(!onlyZeores){
-        while(text.back() == '0' || text.back() == '.'){
-            text.pop_back();
-        }
+    while(text.length() > reference.length()){
+        text.pop_back();
         if(text.length() == 0){
             text = "0";
+            break;
         }
+    }
+    if(text.back() == '.' && reference.back() != '.'){
+        text.pop_back();
     }
     const char *textPtr = text.c_str();
 
@@ -90,6 +85,8 @@ void render_text(SDL_Renderer *renderer, std::string text, SDL_Rect rect, TTF_Fo
 }
 
 int menu(int *scene, SDL_Renderer *renderer, TTF_Font *font, SIR *status){
+    *status = {0, 0, 0, 0, 0, 0};
+
     SDL_Surface *surface;
 
     //hitbox mouse
@@ -164,9 +161,11 @@ int menu(int *scene, SDL_Renderer *renderer, TTF_Font *font, SIR *status){
 
     struct input{
         int index;
-        std::string text;
+        std::string text[5];
+        bool hasdot[5];
     };
     input input;
+
     SDL_StopTextInput();
 
     SDL_Event event;
@@ -182,29 +181,37 @@ int menu(int *scene, SDL_Renderer *renderer, TTF_Font *font, SIR *status){
             }
             if(event.type == SDL_TEXTINPUT){
                 if(is_number(event.text.text)){
-                    input.text += event.text.text;
-                    if(std::stoi(input.text) > 9999){
-                        input.text.pop_back();
+                    input.text[input.index] += event.text.text;
+                    if(std::stoi(input.text[input.index]) > 9999){
+                        input.text[input.index].pop_back();
+                    }
+                    if(event.text.text[0] == '.'){
+                        if(input.hasdot[input.index]){
+                            input.text[input.index].pop_back();
+                        }
+                        else{
+                            input.hasdot[input.index] = true;
+                        }
                     }
                     switch(input.index){
                         case 0:
-                        (*status).susceptible = std::stof(input.text);
+                        status->susceptible = std::stof(input.text[input.index]);
                         break;
 
                         case 1:
-                        (*status).contaminationRate = std::stof(input.text);
+                        status->contaminationRate = std::stof(input.text[input.index]);
                         break;
 
                         case 2:
-                        (*status).recoveryRate = std::stof(input.text);
+                        status->recoveryRate = std::stof(input.text[input.index]);
                         break;
 
                         case 3:
-                        (*status).infected = std::stof(input.text);
+                        status->infected = std::stof(input.text[input.index]);
                         break;
 
                         case 4:
-                        (*status).days = std::stof(input.text);
+                        status->days = std::stof(input.text[input.index]);
                         break;
                     }
                 }
@@ -214,27 +221,30 @@ int menu(int *scene, SDL_Renderer *renderer, TTF_Font *font, SIR *status){
                     SDL_StopTextInput();
                 }
                 if(event.key.keysym.sym == SDLK_BACKSPACE){
-                    if(input.text.length() > 0){
-                        input.text.pop_back();
+                    if(input.text[input.index].length() > 1){
+                        if(input.text[input.index].back() == '.'){
+                            input.hasdot[input.index] = false;
+                        }
+                        input.text[input.index].pop_back();
                         switch(input.index){
                             case 0:
-                            (*status).susceptible = std::stof(input.text);
+                            status->susceptible = std::stof(input.text[input.index]);
                             break;
 
                             case 1:
-                            (*status).contaminationRate = std::stof(input.text);
+                            status->contaminationRate = std::stof(input.text[input.index]);
                             break;
 
                             case 2:
-                            (*status).recoveryRate = std::stof(input.text);
+                            status->recoveryRate = std::stof(input.text[input.index]);
                             break;
 
                             case 3:
-                            (*status).infected = std::stof(input.text);
+                            status->infected = std::stof(input.text[input.index]);
                             break;
 
                             case 4:
-                            (*status).days = std::stof(input.text);
+                            status->days = std::stoi(input.text[input.index]);
                             break;
                         }
                     }
@@ -250,28 +260,30 @@ int menu(int *scene, SDL_Renderer *renderer, TTF_Font *font, SIR *status){
         if(leftdown){
             for(int i = 0; i < 5; i++){
                 if(SDL_IntersectRect(&mouse, &inputRect[i], &intersection)){
-                    input.text = "0";
+
                     input.index = i;
+                    input.text[input.index] = "0";
+                    input.hasdot[input.index] = false;
                     switch(input.index){
-                            case 0:
-                            (*status).susceptible = std::stof(input.text);
-                            break;
+                        case 0:
+                        status->susceptible = std::stof(input.text[input.index]);
+                        break;
 
-                            case 1:
-                            (*status).contaminationRate = std::stof(input.text);
-                            break;
+                        case 1:
+                        status->contaminationRate = std::stof(input.text[input.index]);
+                        break;
 
-                            case 2:
-                            (*status).recoveryRate = std::stof(input.text);
-                            break;
+                        case 2:
+                        status->recoveryRate = std::stof(input.text[input.index]);
+                        break;
 
-                            case 3:
-                            (*status).infected = std::stof(input.text);
-                            break;
+                        case 3:
+                        status->infected = std::stof(input.text[input.index]);
+                        break;
 
-                            case 4:
-                            (*status).days = std::stof(input.text);
-                            break;
+                        case 4:
+                        status->days = std::stoi(input.text[input.index]);
+                        break;
                     }
                     SDL_StartTextInput();
                 }
@@ -286,16 +298,16 @@ int menu(int *scene, SDL_Renderer *renderer, TTF_Font *font, SIR *status){
         //TEXTOS DOS QUADRADOS DA ESQUERDA
         render_text(renderer, "Numero de suscetiveis:", nameRect[0], font);
         render_text(renderer, " Taxa de contaminacao:", nameRect[1], font);
-        render_text(renderer, " Numero de infectados:", nameRect[2], font);
+        render_text(renderer, "  Taxa de recuperacao:", nameRect[2], font);
         render_text(renderer, " Numero de infectados:", nameRect[3], font);
         render_text(renderer, "       Numero de dias:", nameRect[4], font);
 
         //TEXTOS DOS QUADRADOS DA DIREITA
-        render_number_to_text(renderer, status->susceptible, inputRect[0], font);
-        render_number_to_text(renderer, status->contaminationRate, inputRect[1], font);
-        render_number_to_text(renderer, status->recoveryRate, inputRect[2], font);
-        render_number_to_text(renderer, status->infected, inputRect[3], font);
-        render_number_to_text(renderer, status->days, inputRect[4], font);
+        render_number_to_text(renderer, status->susceptible, input.text[0], inputRect[0], font);
+        render_number_to_text(renderer, status->contaminationRate, input.text[1], inputRect[1], font);
+        render_number_to_text(renderer, status->recoveryRate, input.text[2], inputRect[2], font);
+        render_number_to_text(renderer, status->infected, input.text[3], inputRect[3], font);
+        render_number_to_text(renderer, status->days, input.text[4], inputRect[4], font);
 
 
         render_text(renderer, "Modelo SIR", titleRect, font, {255, 40, 40, 255});

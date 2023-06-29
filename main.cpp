@@ -54,7 +54,7 @@ int main(int argc, char *argv[])
             break;
 
             case 1:
-            graph(&scene, renderer, font);
+            graph(&scene, renderer, font, &status);
             break;
         }
     }

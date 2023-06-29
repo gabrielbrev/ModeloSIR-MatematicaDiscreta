@@ -30,12 +30,10 @@ typedef float_xy fxy;
 
 fxy zoom;
 
+SIR local_status;
+
 float SIR_function(float x, int option){
-	SIR status;
-	status.susceptible = 1199;
-	status.infected = 1;
-	status.contaminationRate = 0.001;
-	status.recoveryRate = 0.6;
+	SIR status = local_status;
 	status.days = x;
 	SIR result = simulate_epidemic(&status);
 	switch(option){
@@ -278,7 +276,16 @@ void show_point_info(SDL_Renderer *renderer, TTF_Font *font, gdi dot, SDL_Point 
 	SDL_RenderDrawLine(renderer, dot.rect.x, dot.rect.y + dot.rect.h/2, origin.x, dot.rect.y+ dot.rect.h/2);
 }
 
-int graph(int *scene, SDL_Renderer *renderer, TTF_Font *font){
+int graph(int *scene, SDL_Renderer *renderer, TTF_Font *font, SIR *status){
+	local_status = *status;
+
+	printf("\n%f\n", local_status.contaminationRate);
+	printf("%d\n", local_status.days);
+	printf("%f\n", local_status.infected);
+	printf("%f\n", local_status.recovered);
+	printf("%f\n", local_status.recoveryRate);
+	printf("%f\n", local_status.susceptible);
+
 	zoom = {38 * window_proportion, float(0.56) * window_proportion};
 
 	SDL_Point origin = {int(100 * window_proportion), int(HEIGHT - 100 * window_proportion)};
