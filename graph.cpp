@@ -281,7 +281,7 @@ void show_point_info(SDL_Renderer *renderer, TTF_Font *font, gdi dot, SDL_Point 
 int graph(int *scene, SDL_Renderer *renderer, TTF_Font *font){
 	zoom = {38 * window_proportion, float(0.56) * window_proportion};
 
-	SDL_Point origin = {100 * window_proportion, HEIGHT - 100 * window_proportion};
+	SDL_Point origin = {int(100 * window_proportion), int(HEIGHT - 100 * window_proportion)};
 
 	SDL_Event event;
 
@@ -293,7 +293,7 @@ int graph(int *scene, SDL_Renderer *renderer, TTF_Font *font){
 
 	SDL_Rect mouse = {0, 0, 1, 1};
 
-	int frame = 75 * window_proportion;
+	int frame = int(75 * window_proportion);
 
 	bool showInfo = false;
 	bool hideInfo = false;

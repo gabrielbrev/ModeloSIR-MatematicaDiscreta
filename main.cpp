@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cmath>
 #include "headers/SIR.h"
 #include "headers/graph.h"
 #include "headers/menu.h"
