@@ -5,12 +5,14 @@
 #ifdef _WIN32
   #include "src/win/SDL2/SDL.h"
   #include "src/win/SDL2/SDL_ttf.h"
-  int WIDTH = 1100, HEIGHT = 900;
+  int WIDTH = 800, HEIGHT = 600;
 #else
   #include <SDL.h>
   #include <SDL_ttf.h>
   int WIDTH = 800, HEIGHT = 600;
 #endif
+
+float window_proportion;
 
 bool running = true;
 
@@ -26,7 +28,21 @@ int main(int argc, char *argv[])
     
     TTF_Font* font = TTF_OpenFont("./fonts/prototype.ttf", 50);
 
-    int scene = 0;
+	if (HEIGHT < 900 || WIDTH < 1100){
+		if (900 - HEIGHT <= 1100 - WIDTH){
+			window_proportion = float(WIDTH) / 1100;
+		}
+		else{
+			window_proportion = float(HEIGHT) / 900;
+		}
+	}
+	else{
+		window_proportion = 1;
+	}
+
+	printf("proportion: %f\n", window_proportion);
+
+	int scene = 0;
 
     while(running)
     {   

@@ -14,6 +14,8 @@
 
 extern int WIDTH, HEIGHT;
 
+extern float window_proportion;
+
 extern bool running;
 
 struct textures{
@@ -88,16 +90,16 @@ int menu(int *scene, SDL_Renderer *renderer, TTF_Font *font, SIR *status){
 
     //retangulo do titulo
     SDL_Rect Title;
-    Title.w = 600;
-    Title.h = 100;
+    Title.w = 600 * window_proportion;
+    Title.h = 100 * window_proportion;
     Title.x = WIDTH/2 - Title.w/2;
     Title.y = HEIGHT/32;
 
     SDL_Rect nameRect[5];
 
     //Retangulo dos Suscetiveis
-    nameRect[0].w = 500;
-    nameRect[0].h = 80;
+    nameRect[0].w = 500 * window_proportion;
+    nameRect[0].h = 80 * window_proportion;
     nameRect[0].x = WIDTH/2 - (nameRect[0].h/2) - nameRect[0].w + Title.h;
     nameRect[0].y = HEIGHT/4 - (nameRect[0].h/2);
 
@@ -119,8 +121,8 @@ int menu(int *scene, SDL_Renderer *renderer, TTF_Font *font, SIR *status){
 
     SDL_Rect inputRect[5];
     //input Rect 0
-    inputRect[0].w = 300;
-    inputRect[0].h = 80;
+    inputRect[0].w = 300 * window_proportion;
+    inputRect[0].h = 80 * window_proportion;
     inputRect[0].x = WIDTH/2 + (inputRect[0].h/2) + Title.h;
     inputRect[0].y = HEIGHT/4 - (inputRect[0].h/2);
 
@@ -144,7 +146,6 @@ int menu(int *scene, SDL_Renderer *renderer, TTF_Font *font, SIR *status){
     load_textures(renderer, &txtr, font);
 
     struct input{
-        int flag = 0;
         int index;
         std::string text;
     };
@@ -191,10 +192,9 @@ int menu(int *scene, SDL_Renderer *renderer, TTF_Font *font, SIR *status){
             if(event.type == SDL_KEYDOWN){
                 if(event.key.keysym.sym == SDLK_RETURN){
                     SDL_StopTextInput();
-                    input.flag = 0;
                 }
                 if(event.key.keysym.sym == SDLK_BACKSPACE){
-                    if(input.flag == 1 && input.text.length() > 0){
+                    if(input.text.length() > 0){
                         input.text.pop_back();
                         switch(input.index){
                             case 0:
@@ -219,6 +219,10 @@ int menu(int *scene, SDL_Renderer *renderer, TTF_Font *font, SIR *status){
                         }
                     }
                 }
+                if(event.key.keysym.sym == SDLK_p){
+                    SDL_StopTextInput();
+                    *scene = 1;
+                }
             }
             if(event.type == SDL_MOUSEBUTTONDOWN){
                 if(event.button.button == SDL_BUTTON_LEFT){
@@ -229,10 +233,30 @@ int menu(int *scene, SDL_Renderer *renderer, TTF_Font *font, SIR *status){
 
         if(leftdown){
             for(int i = 0; i < 5; i++){
-                if(SDL_IntersectRect(&mouse, &inputRect[i], &intersection) && input.flag == 0){
-                    input.flag = 1;
-                    input.index = i;
+                if(SDL_IntersectRect(&mouse, &inputRect[i], &intersection)){
                     input.text = "0";
+                    input.index = i;
+                    switch(input.index){
+                            case 0:
+                            (*status).susceptible = std::stof(input.text);
+                            break;
+
+                            case 1:
+                            (*status).contaminationRate = std::stof(input.text);
+                            break;
+
+                            case 2:
+                            (*status).recoveryRate = std::stof(input.text);
+                            break;
+
+                            case 3:
+                            (*status).infected = std::stof(input.text);
+                            break;
+
+                            case 4:
+                            (*status).days = std::stof(input.text);
+                            break;
+                    }
                     SDL_StartTextInput();
                 }
             }

@@ -12,6 +12,8 @@
 
 extern int WIDTH, HEIGHT;
 
+extern bool window_proportion;
+
 extern bool running;
 
 struct int_xy{
