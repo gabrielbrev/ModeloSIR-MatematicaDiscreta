@@ -6,7 +6,7 @@
 #ifdef _WIN32
   #include "src/win/SDL2/SDL.h"
   #include "src/win/SDL2/SDL_ttf.h"
-  int WIDTH = 800, HEIGHT = 600;
+  int WIDTH = 1100, HEIGHT = 900;
 #else
   #include <SDL.h>
   #include <SDL_ttf.h>

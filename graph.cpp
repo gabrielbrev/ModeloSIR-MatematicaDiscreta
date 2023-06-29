@@ -307,20 +307,9 @@ int graph(int *scene, SDL_Renderer *renderer, TTF_Font *font){
 				break;
 			}
 			if(event.type == SDL_KEYDOWN){
-				reposition = true;
-				if(event.key.keysym.sym == SDLK_DOWN){
-					origin.y += 5;
+				if(event.key.keysym.sym == SDLK_ESCAPE){
+					*scene = 0;
 				}
-				if(event.key.keysym.sym == SDLK_UP){
-					origin.y -= 5;
-				}
-				if(event.key.keysym.sym == SDLK_RIGHT){
-					origin.x += 5;
-				}
-				if(event.key.keysym.sym == SDLK_LEFT){
-					origin.x -= 5;
-				}
-			
 			}
 			if(event.type == SDL_MOUSEMOTION){
 				SDL_GetMouseState(&mouse.x, &mouse.y);
