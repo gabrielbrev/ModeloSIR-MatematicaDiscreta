@@ -87,8 +87,6 @@ void render_text(SDL_Renderer *renderer, std::string text, SDL_Rect rect, TTF_Fo
 int menu(int *scene, SDL_Renderer *renderer, TTF_Font *font, SIR *status){
     *status = {0, 0, 0, 0, 0, 0};
 
-    SDL_Surface *surface;
-
     //hitbox mouse
     SDL_Rect mouse;
     mouse.w = 1;
@@ -160,6 +158,7 @@ int menu(int *scene, SDL_Renderer *renderer, TTF_Font *font, SIR *status){
     startRect.y = (nameRect[4].y + nameRect[4].h) + startRect.h/2;
 
     struct input{
+        int flag;
         int index;
         std::string text[5];
         bool hasdot[5];
@@ -193,6 +192,9 @@ int menu(int *scene, SDL_Renderer *renderer, TTF_Font *font, SIR *status){
                             input.hasdot[input.index] = true;
                         }
                     }
+                    if(input.text[input.index] == "00"){
+                        input.text[input.index].pop_back();
+                    }
                     switch(input.index){
                         case 0:
                         status->susceptible = std::stof(input.text[input.index]);
@@ -218,6 +220,7 @@ int menu(int *scene, SDL_Renderer *renderer, TTF_Font *font, SIR *status){
             }
             if(event.type == SDL_KEYDOWN){
                 if(event.key.keysym.sym == SDLK_RETURN){
+                    input.flag = 0;
                     SDL_StopTextInput();
                 }
                 if(event.key.keysym.sym == SDLK_BACKSPACE){
@@ -257,38 +260,6 @@ int menu(int *scene, SDL_Renderer *renderer, TTF_Font *font, SIR *status){
             }
         }
 
-        if(leftdown){
-            for(int i = 0; i < 5; i++){
-                if(SDL_IntersectRect(&mouse, &inputRect[i], &intersection)){
-
-                    input.index = i;
-                    input.text[input.index] = "0";
-                    input.hasdot[input.index] = false;
-                    switch(input.index){
-                        case 0:
-                        status->susceptible = std::stof(input.text[input.index]);
-                        break;
-
-                        case 1:
-                        status->contaminationRate = std::stof(input.text[input.index]);
-                        break;
-
-                        case 2:
-                        status->recoveryRate = std::stof(input.text[input.index]);
-                        break;
-
-                        case 3:
-                        status->infected = std::stof(input.text[input.index]);
-                        break;
-
-                        case 4:
-                        status->days = std::stoi(input.text[input.index]);
-                        break;
-                    }
-                    SDL_StartTextInput();
-                }
-            }
-        }
 
         SDL_SetRenderDrawColor(renderer, 0 , 0, 0, 255);
         SDL_RenderClear(renderer);
@@ -313,6 +284,50 @@ int menu(int *scene, SDL_Renderer *renderer, TTF_Font *font, SIR *status){
         render_text(renderer, "Modelo SIR", titleRect, font, {255, 40, 40, 255});
         render_text(renderer, "simular", startRect, font, {255, 100, 100, 255});
 
+        SDL_SetRenderDrawColor(renderer, 70, 70, 70, 70);
+        for(int i = 0 ; i < 5 ; i++){
+            SDL_RenderDrawRect(renderer, &inputRect[i]);
+        }
+
+        for(int i = 0; i < 5; i++){
+            if(SDL_IntersectRect(&mouse, &inputRect[i], &intersection)){
+                SDL_SetRenderDrawColor(renderer, 150, 70, 70, 70);
+                SDL_RenderDrawRect(renderer, &inputRect[i]);
+                if(leftdown){
+                    input.flag = 1;
+                    input.index = i;
+                    input.text[input.index] = "0";
+                    input.hasdot[input.index] = false;
+                    switch(input.index){
+                        case 0:
+                        status->susceptible = std::stof(input.text[input.index]);
+                        break;
+
+                        case 1:
+                        status->contaminationRate = std::stof(input.text[input.index]);
+                        break;
+
+                        case 2:
+                        status->recoveryRate = std::stof(input.text[input.index]);
+                        break;
+
+                        case 3:
+                        status->infected = std::stof(input.text[input.index]);
+                        break;
+
+                        case 4:
+                        status->days = std::stoi(input.text[input.index]);
+                        break;
+                    }
+                    SDL_StartTextInput();    
+                }
+                
+            }
+            if(i == input.index && input.flag == 1){
+                SDL_SetRenderDrawColor(renderer, 255, 70, 70, 70);
+                SDL_RenderDrawRect(renderer, &inputRect[i]);
+            }
+        }
         if(SDL_IntersectRect(&mouse, &startRect, &intersection)){
             render_text(renderer, "simular", startRect, font, {100, 100, 100, 155});
             if(leftdown){
@@ -320,15 +335,10 @@ int menu(int *scene, SDL_Renderer *renderer, TTF_Font *font, SIR *status){
             }
         }
 
-        SDL_SetRenderDrawColor(renderer, 70, 70, 70, 70);
-        for(int i = 0 ; i < 5 ; i++){
-            SDL_RenderDrawRect(renderer, &inputRect[i]);
-        }
 
         SDL_RenderPresent(renderer);
 
     }
 
-
     return EXIT_SUCCESS;
-    }
+}
