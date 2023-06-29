@@ -120,9 +120,23 @@ int get_decimal_places(float x){
 }
 
 ixy set_marker(SDL_Point origin){
+	ixy marker;
 	uint8_t x = get_decimal_places(local_status.days) - 2;
+	if(((local_status.days * zoom.x) - ((local_status.days - pow(10, x)) * zoom.x)) < (30 * window_proportion)){
+		x++;
+	}
 	uint8_t y = get_decimal_places(local_status.susceptible + local_status.infected) - 2;
-	return {(int)pow(10, x), (int)pow(10, y)};
+	if(((local_status.susceptible + local_status.infected) * zoom.y) - ((local_status.susceptible + local_status.infected - pow(10, y)) * zoom.y) < 30 * window_proportion){
+		y++;
+	}
+	marker = {(int)pow(10, x), (int)pow(10, y)};
+	if(x == 255){
+		marker.x = 3;
+	}
+	if(y == 255){
+		marker.y = 3;
+	}
+	return marker;
 }
 
 void draw_base(SDL_Renderer *renderer, SDL_Point origin, int frame, TTF_Font *font){
@@ -279,9 +293,9 @@ void show_point_info(SDL_Renderer *renderer, TTF_Font *font, gdi dot, SDL_Point 
 
 	day.txtr_rect = day.rect;
 
-		proportion = (float)surface->w/(float)surface->h;
-		day.txtr_rect.w = (float)day.txtr_rect.h * proportion;
-		day.txtr_rect.x = day.rect.x + day.rect.w/2 - day.txtr_rect.w/2;
+	proportion = (float)surface->w/(float)surface->h;
+	day.txtr_rect.w = (float)day.txtr_rect.h * proportion;
+	day.txtr_rect.x = day.rect.x + day.rect.w/2 - day.txtr_rect.w/2;
 	
 	SDL_FreeSurface(surface);
 
@@ -350,12 +364,15 @@ int graph(int *scene, SDL_Renderer *renderer, TTF_Font *font, SIR *status){
 		for(int i = 0; i < local_status.days; i++){
 			if(SDL_IntersectRect(&mouse, &susceptible[i].rect, &intersection)){
 				show_point_info(renderer, font, susceptible[i], origin, frame);
+				break;
 			}
 			else if(SDL_IntersectRect(&mouse, &recovered[i].rect, &intersection)){
 				show_point_info(renderer, font, recovered[i], origin, frame);
+				break;
 			}
 			else if(SDL_IntersectRect(&mouse, &infected[i].rect, &intersection)){
 				show_point_info(renderer, font, infected[i], origin, frame);
+				break;
 			}
 		}
 		
