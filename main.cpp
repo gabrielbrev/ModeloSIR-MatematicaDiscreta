@@ -35,6 +35,7 @@ int main(int argc, char *argv[])
 		else{
 			window_proportion = float(HEIGHT) / 900;
 		}
+    window_proportion = std::round(window_proportion * pow(10, 1)) / pow(10, 1);
 	}
 	else{
 		window_proportion = 1;

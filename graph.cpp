@@ -12,7 +12,7 @@
 
 extern int WIDTH, HEIGHT;
 
-extern bool window_proportion;
+extern float window_proportion;
 
 extern bool running;
 
@@ -28,7 +28,7 @@ struct float_xy{
 };
 typedef float_xy fxy;
 
-fxy zoom = {38, 0.56};
+fxy zoom;
 
 float SIR_function(float x, int option){
 	SIR status;
@@ -105,7 +105,7 @@ void draw_dotted_function(SDL_Renderer *renderer, SDL_Point origin, gdi vec[], i
 	for(float x = 0; x < iterations; x += 1){
 		y = SIR_function(x, arg2);
 		point = {int(origin.x + (x * zoom.x)), int(origin.y + (y * zoom.y))};
-		int size = 13;
+		int size = 13 * window_proportion;
 		SDL_Rect rect = {point.x - size/2, point.y - size/2, size, size};
 		if(point_in_frame(point, frame))
 			SDL_RenderCopy(renderer, dot, NULL, &rect);
@@ -116,8 +116,8 @@ void draw_dotted_function(SDL_Renderer *renderer, SDL_Point origin, gdi vec[], i
 
 void draw_base(SDL_Renderer *renderer, SDL_Point origin, int frame, TTF_Font *font){
 	ixy marker = {1, 100};
-	int markerSize = 21;
-	int thickness = 3;
+	int markerSize = 21 * window_proportion;
+	int thickness = 3 * window_proportion;
 	if(origin.x > frame && origin.x < WIDTH - frame){
 		SDL_Rect base = {origin.x - thickness/2, frame, thickness, HEIGHT - (2 * frame)};
 		SDL_RenderFillRect(renderer, &base);
@@ -126,9 +126,9 @@ void draw_base(SDL_Renderer *renderer, SDL_Point origin, int frame, TTF_Font *fo
 				SDL_Rect marker = {origin.x - markerSize/2, origin.y + int(y * zoom.y) - thickness/2, markerSize, thickness};
 				SDL_RenderFillRect(renderer, &marker);
 				SDL_Rect info = marker;
-				info.w = 30;
-				info.x -= info.w + 5;
-				info.h = 30;
+				info.w = 30 * window_proportion;
+				info.x -= info.w + 5 * window_proportion;
+				info.h = 30 * window_proportion;
 				info.y = origin.y + int(y * zoom.y) - info.h/2;
 				if(info.y + info.h < origin.y){
 					std::string text = std::to_string(-y);
@@ -165,9 +165,9 @@ void draw_base(SDL_Renderer *renderer, SDL_Point origin, int frame, TTF_Font *fo
 				SDL_Rect marker = {origin.x + int(x * zoom.x) - thickness/2, origin.y - markerSize/2, thickness, markerSize};
 				SDL_RenderFillRect(renderer, &marker);
 				SDL_Rect info = marker;
-				info.y += info.h + 5;
-				info.w = 30;
-				info.h = 30;
+				info.y += info.h + 5 * window_proportion;
+				info.w = 30 * window_proportion;
+				info.h = 30 * window_proportion;
 				info.x = origin.x + int(x * zoom.x) - info.w/2;
 				if(info.x > origin.x){
 					std::string text = std::to_string(x);
@@ -206,8 +206,8 @@ void show_point_info(SDL_Renderer *renderer, TTF_Font *font, gdi dot, SDL_Point 
 	};
 
 	info type;
-	type.rect.w = 200;
-	type.rect.h = 50;
+	type.rect.w = 200 * window_proportion;
+	type.rect.h = 50 * window_proportion;
 	type.rect.x = WIDTH - type.rect.w - frame;
 	type.rect.y = frame;
 	SDL_Color color;
@@ -253,8 +253,8 @@ void show_point_info(SDL_Renderer *renderer, TTF_Font *font, gdi dot, SDL_Point 
 
 	info day;
 
-	day.rect.w = 200;
-	day.rect.h = 35;
+	day.rect.w = 200 * window_proportion;
+	day.rect.h = 35 * window_proportion;
 	day.rect.x = type.rect.x;
 	day.rect.y = type.rect.y + type.rect.h;
 
@@ -275,12 +275,13 @@ void show_point_info(SDL_Renderer *renderer, TTF_Font *font, gdi dot, SDL_Point 
 	SDL_FreeSurface(surface);
 
 	SDL_RenderCopy(renderer, texture, NULL, &day.txtr_rect);
-	SDL_RenderDrawLine(renderer, dot.rect.x, dot.rect.y + dot.rect.h/2, origin.x, dot.rect.y + dot.rect.h/2);
+	SDL_RenderDrawLine(renderer, dot.rect.x, dot.rect.y + dot.rect.h/2, origin.x, dot.rect.y+ dot.rect.h/2);
 }
 
 int graph(int *scene, SDL_Renderer *renderer, TTF_Font *font){
+	zoom = {38 * window_proportion, float(0.56) * window_proportion};
 
-	SDL_Point origin = {100, HEIGHT - 100};
+	SDL_Point origin = {100 * window_proportion, HEIGHT - 100 * window_proportion};
 
 	SDL_Event event;
 
@@ -291,6 +292,8 @@ int graph(int *scene, SDL_Renderer *renderer, TTF_Font *font){
 	SDL_Rect intersection;
 
 	SDL_Rect mouse = {0, 0, 1, 1};
+
+	int frame = 75 * window_proportion;
 
 	bool showInfo = false;
 	bool hideInfo = false;
@@ -328,21 +331,21 @@ int graph(int *scene, SDL_Renderer *renderer, TTF_Font *font){
 		SDL_RenderClear(renderer);
 
 		SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-		draw_base(renderer, origin, 75, font);
+		draw_base(renderer, origin, frame, font);
 
-		draw_dotted_function(renderer, origin, infected, 25, 75, NULL, 0);
-		draw_dotted_function(renderer, origin, recovered, 25, 75, NULL, 1);
-		draw_dotted_function(renderer, origin, susceptible, 25, 75, NULL, 2);
+		draw_dotted_function(renderer, origin, infected, 25, frame, NULL, 0);
+		draw_dotted_function(renderer, origin, recovered, 25, frame, NULL, 1);
+		draw_dotted_function(renderer, origin, susceptible, 25, frame, NULL, 2);
 
 		for(int i = 0; i < 25; i++){
 			if(SDL_IntersectRect(&mouse, &susceptible[i].rect, &intersection)){
-				show_point_info(renderer, font, susceptible[i], origin, 75);
+				show_point_info(renderer, font, susceptible[i], origin, frame);
 			}
 			else if(SDL_IntersectRect(&mouse, &recovered[i].rect, &intersection)){
-				show_point_info(renderer, font, recovered[i], origin, 75);
+				show_point_info(renderer, font, recovered[i], origin, frame);
 			}
 			else if(SDL_IntersectRect(&mouse, &infected[i].rect, &intersection)){
-				show_point_info(renderer, font, infected[i], origin, 75);
+				show_point_info(renderer, font, infected[i], origin, frame);
 			}
 		}
 		
