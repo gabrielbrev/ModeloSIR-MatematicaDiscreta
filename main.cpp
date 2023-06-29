@@ -42,8 +42,6 @@ int main(int argc, char *argv[])
 		window_proportion = 1;
 	}
 
-	printf("proportion: %f\n", window_proportion);
-
 	int scene = 0;
 
     while(running)
