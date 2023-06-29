@@ -19,7 +19,7 @@ bool running = true;
 
 int main(int argc, char *argv[])
 {   
-    SIR status = {0, 0, 0, 0};
+    SIR status = {0, 0, 0, 0, 0};
     SDL_Init(SDL_INIT_EVERYTHING);
     TTF_Init();
 

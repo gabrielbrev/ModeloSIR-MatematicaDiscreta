@@ -84,9 +84,21 @@ void render_text(SDL_Renderer *renderer, std::string text, SDL_Rect rect, TTF_Fo
     SDL_DestroyTexture(texture);
 }
 
-int menu(int *scene, SDL_Renderer *renderer, TTF_Font *font, SIR *status){
-    *status = {0, 0, 0, 0, 0, 0};
+std::string read_number(float number){
+    std::string aux = std::to_string(number);
+    for(int i = aux.length() - 1; i >= 0; i--){
+        if(aux[i] != '0'){
+            if(aux[i] == '.'){
+                aux.pop_back();
+            }
+            break;
+        }
+        aux.pop_back();
+    }
+    return aux;
+}
 
+int menu(int *scene, SDL_Renderer *renderer, TTF_Font *font, SIR *status){
     //hitbox mouse
     SDL_Rect mouse;
     mouse.w = 1;
@@ -164,6 +176,12 @@ int menu(int *scene, SDL_Renderer *renderer, TTF_Font *font, SIR *status){
         bool hasdot[5];
     };
     input input;
+
+    input.text[0] = read_number(status->susceptible);
+    input.text[1] = read_number(status->contaminationRate);
+    input.text[2] = read_number(status->recoveryRate);
+    input.text[3] = read_number(status->infected);
+    input.text[4] = read_number(status->days);
 
     SDL_StopTextInput();
 
@@ -334,7 +352,6 @@ int menu(int *scene, SDL_Renderer *renderer, TTF_Font *font, SIR *status){
                 *scene = 1;
             }
         }
-
 
         SDL_RenderPresent(renderer);
 
