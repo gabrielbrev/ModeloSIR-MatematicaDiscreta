@@ -42,10 +42,8 @@ float SIR_function(float x, int option){
 
 		case 1:
 		return - result.recovered;
-
-		case 2:
-		return - result.susceptible;
 	}
+	return - result.susceptible;
 }
 
 float function(float x, int option){
@@ -112,8 +110,23 @@ void draw_dotted_function(SDL_Renderer *renderer, SDL_Point origin, gdi vec[], i
 	SDL_DestroyTexture(dot);
 }
 
+int get_decimal_places(float x){
+	int count = 0;
+	while(x > 1){
+		x = x * 0.1;
+		count++;
+	}
+	return count;
+}
+
+ixy set_marker(SDL_Point origin){
+	uint8_t x = get_decimal_places(local_status.days) - 2;
+	uint8_t y = get_decimal_places(local_status.susceptible + local_status.infected) - 2;
+	return {(int)pow(10, x), (int)pow(10, y)};
+}
+
 void draw_base(SDL_Renderer *renderer, SDL_Point origin, int frame, TTF_Font *font){
-	ixy marker = {1, 100};
+	ixy marker = set_marker(origin);
 	int markerSize = 21 * window_proportion;
 	int thickness = 3 * window_proportion;
 	if(origin.x > frame && origin.x < WIDTH - frame){
@@ -278,34 +291,35 @@ void show_point_info(SDL_Renderer *renderer, TTF_Font *font, gdi dot, SDL_Point 
 
 int graph(int *scene, SDL_Renderer *renderer, TTF_Font *font, SIR *status){
 	local_status = *status;
+	if(local_status.days == 0){
+		local_status.days = 1;
+	}
+	if(local_status.susceptible == 0){
+		local_status.susceptible = 1;
+	}
 
-	printf("\n%f\n", local_status.contaminationRate);
-	printf("%d\n", local_status.days);
-	printf("%f\n", local_status.infected);
-	printf("%f\n", local_status.recovered);
-	printf("%f\n", local_status.recoveryRate);
-	printf("%f\n", local_status.susceptible);
-
-	zoom = {38 * window_proportion, float(0.56) * window_proportion};
+	zoom = {(float)38.0 * float(25.0)/local_status.days * window_proportion, float(0.56) * float(1200)/(local_status.susceptible + local_status.infected) * window_proportion};
+	if(zoom.x == 0){
+		zoom.x = 1;
+	}
+	if(zoom.y == 0){
+		zoom.y = 1;
+	}
+	printf("%f : %f\n", zoom.x, zoom.y);
 
 	SDL_Point origin = {int(100 * window_proportion), int(HEIGHT - 100 * window_proportion)};
 
 	SDL_Event event;
 
-	gdi susceptible[25];
-	gdi infected[25];
-	gdi recovered[25];
+	gdi susceptible[local_status.days];
+	gdi infected[local_status.days];
+	gdi recovered[local_status.days];
 
 	SDL_Rect intersection;
 
 	SDL_Rect mouse = {0, 0, 1, 1};
 
 	int frame = int(75 * window_proportion);
-
-	bool showInfo = false;
-	bool hideInfo = false;
-
-	bool reposition = true;
 
 	while(*scene == 1){
 		if(SDL_PollEvent(&event)){
@@ -329,11 +343,11 @@ int graph(int *scene, SDL_Renderer *renderer, TTF_Font *font, SIR *status){
 		SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 		draw_base(renderer, origin, frame, font);
 
-		draw_dotted_function(renderer, origin, infected, 25, frame, NULL, 0);
-		draw_dotted_function(renderer, origin, recovered, 25, frame, NULL, 1);
-		draw_dotted_function(renderer, origin, susceptible, 25, frame, NULL, 2);
+		draw_dotted_function(renderer, origin, infected, local_status.days, frame, NULL, 0);
+		draw_dotted_function(renderer, origin, recovered, local_status.days, frame, NULL, 1);
+		draw_dotted_function(renderer, origin, susceptible, local_status.days, frame, NULL, 2);
 
-		for(int i = 0; i < 25; i++){
+		for(int i = 0; i < local_status.days; i++){
 			if(SDL_IntersectRect(&mouse, &susceptible[i].rect, &intersection)){
 				show_point_info(renderer, font, susceptible[i], origin, frame);
 			}
