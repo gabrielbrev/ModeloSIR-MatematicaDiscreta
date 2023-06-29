@@ -319,7 +319,6 @@ int graph(int *scene, SDL_Renderer *renderer, TTF_Font *font, SIR *status){
 	if(zoom.y == 0){
 		zoom.y = 1;
 	}
-	printf("%f : %f\n", zoom.x, zoom.y);
 
 	SDL_Point origin = {int(100 * window_proportion), int(HEIGHT - 100 * window_proportion)};
 
